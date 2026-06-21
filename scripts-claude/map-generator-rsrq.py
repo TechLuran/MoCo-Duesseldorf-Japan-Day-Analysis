@@ -95,14 +95,14 @@ def make_map(event_df, baseline_df, metric, label, event_label, baseline_label, 
         event_df.longitude - LON_OFFSET, event_df.latitude,
         c=event_df[metric], cmap=CMAP_NAME, norm=norm,
         s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.01,
+        edgecolors="black", linewidths=0.15,
         marker="o", label=event_label,
     )
     ax.scatter(
         baseline_df.longitude + LON_OFFSET, baseline_df.latitude,
         c=baseline_df[metric], cmap=CMAP_NAME, norm=norm,
         s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.1,
+        edgecolors="black", linewidths=0.15,
         marker="^", label=baseline_label,
     )
 
@@ -116,7 +116,7 @@ def make_map(event_df, baseline_df, metric, label, event_label, baseline_label, 
     )
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300, facecolor="white")
+    plt.savefig(out_path, dpi=600, facecolor="white")
     plt.close(fig)
     print(f"Saved {out_path}")
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         make_map(
             event_df, baseline_df, cfg["metric"], cfg["label"],
             event_label, baseline_label,
-            out_path=f"map_{cfg['metric']}.pdf",
+            out_path=f"map_{cfg['metric']}.png",
         )
 
     print("\nDone. Upload map_rsrp.png, map_rsrq.png, map_sinr.png back to Claude.")
