@@ -95,14 +95,14 @@ def make_map(event_df, baseline_df, metric, label, event_label, baseline_label, 
         event_df.longitude - LON_OFFSET, event_df.latitude,
         c=event_df[metric], cmap=CMAP_NAME, norm=norm,
         s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.15,
+        edgecolors="black", linewidths=0.01,
         marker="o", label=event_label,
     )
     ax.scatter(
         baseline_df.longitude + LON_OFFSET, baseline_df.latitude,
         c=baseline_df[metric], cmap=CMAP_NAME, norm=norm,
         s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.15,
+        edgecolors="black", linewidths=0.1,
         marker="^", label=baseline_label,
     )
 
