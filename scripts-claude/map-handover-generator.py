@@ -144,7 +144,7 @@ if __name__ == "__main__":
             print(f"\n[{cfg['provider']} {slot_label}] event handovers={len(event_ho)}  "
                   f"({baseline_label}) baseline handovers={len(baseline_ho)}")
 
-            out_name = f"map_handovers_{cfg['provider'].lower()}_{slot_label}.png"
+            out_name = f"map_handovers_{cfg['provider'].lower()}_{slot_label}.pdf"
             make_map(event_ho, baseline_ho, cfg["provider"], slot_label, baseline_label, out_path=out_name)
 
     print("\nDone. Upload all 6 map_handovers_*.png files back to Claude.")

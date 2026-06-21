@@ -135,7 +135,7 @@ if __name__ == "__main__":
         make_map(
             event_df, baseline_df, cfg["metric"], cfg["label"],
             event_label, baseline_label,
-            out_path=f"map_{cfg['metric']}.png",
+            out_path=f"map_{cfg['metric']}.pdf",
         )
 
     print("\nDone. Upload map_rsrp.png, map_rsrq.png, map_sinr.png back to Claude.")
