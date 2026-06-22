@@ -16,12 +16,13 @@ USAGE:
     2. pip install pandas cartopy matplotlib   (if not already installed)
     3. python make_telekom_maps.py
     4. It will write: map_rsrp.png, map_rsrq.png, map_sinr.png  (300 dpi)
-       to the current folder.
+       to analyzed-output/indicators/telekom/ (created automatically if missing).
     5. Upload those three PNGs back to Claude.
 
 Adjust the paths in METRIC_CONFIG below to match your local folder layout
-(defaults match the "clean/Telekom/..." structure used so far).
+(defaults match the "data/clean/Telekom/..." structure used so far).
 """
+import os
 import pandas as pd
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
@@ -32,20 +33,24 @@ import matplotlib.colors as mcolors
 # Each metric gets its own specific event file + matching baseline file.
 METRIC_CONFIG = [
     dict(metric="rsrp", label="RSRP [dBm]",
-         event_file="data/clean/O2/12-13.csv",
-         baseline_file="data/clean/O2/baseline.csv"),
+         event_file="data/clean/Telekom/12-13.csv",
+         baseline_file="data/clean/Telekom/baseline.csv"),
     dict(metric="rsrq", label="RSRQ [dB]",
-         event_file="data/clean/O2/15-16.csv",
-         baseline_file="data/clean/O2/baseline.csv"),
+         event_file="data/clean/Telekom/15-16.csv",
+         baseline_file="data/clean/Telekom/baseline.csv"),
     dict(metric="sinr", label="SINR [dB]",
-         event_file="data/clean/O2/18-19-and-speed.csv",
-         baseline_file="data/clean/O2/baseline-and-speed.csv"),
+         event_file="data/clean/Telekom/18-19-and-speed.csv",
+         baseline_file="data/clean/Telekom/baseline-and-speed.csv"),
 ]
 
 CMAP_NAME = "RdYlGn"
 ZOOM_LEVEL = 15
-LON_OFFSET = 0.00018   # fixed offset in degrees longitude, applied opposite directions to each line
+LON_OFFSET = 0.00035   # fixed offset in degrees longitude (~26m at this latitude), applied opposite directions to each line
+MARKER_SIZE = 38        # marker area in points^2 (was 14) -- bigger circles/triangles for A4 print legibility
+MARKER_EDGE_WIDTH = 0.05  # was 0.3 -- near-invisible outline, just enough to keep marker shape crisp
 TILE_CACHE = "~/.cache/cartopy/tiles"
+
+OUTPUT_DIR = "analyzed-output/indicators/telekom"
 
 # Sane bounding box around the known route (Düsseldorf Rhine bank, Japan Day area).
 # Rows outside this box are GPS glitches (e.g. cold GPS fix) and are dropped before plotting.
@@ -94,15 +99,15 @@ def make_map(event_df, baseline_df, metric, label, event_label, baseline_label, 
     sc1 = ax.scatter(
         event_df.longitude - LON_OFFSET, event_df.latitude,
         c=event_df[metric], cmap=CMAP_NAME, norm=norm,
-        s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.15,
+        s=MARKER_SIZE, alpha=0.85, transform=PC,
+        edgecolors="black", linewidths=MARKER_EDGE_WIDTH,
         marker="o", label=event_label,
     )
     ax.scatter(
         baseline_df.longitude + LON_OFFSET, baseline_df.latitude,
         c=baseline_df[metric], cmap=CMAP_NAME, norm=norm,
-        s=14, alpha=0.85, transform=PC,
-        edgecolors="black", linewidths=0.15,
+        s=MARKER_SIZE, alpha=0.85, transform=PC,
+        edgecolors="black", linewidths=MARKER_EDGE_WIDTH,
         marker="^", label=baseline_label,
     )
 
@@ -116,12 +121,14 @@ def make_map(event_df, baseline_df, metric, label, event_label, baseline_label, 
     )
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=600, facecolor="white")
+    plt.savefig(out_path, dpi=300, facecolor="white")
     plt.close(fig)
     print(f"Saved {out_path}")
 
 
 if __name__ == "__main__":
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     for cfg in METRIC_CONFIG:
         event_df = load_and_clean(cfg["event_file"])
         baseline_df = load_and_clean(cfg["baseline_file"])
@@ -132,10 +139,11 @@ if __name__ == "__main__":
         print(f"\n[{cfg['metric']}] event={cfg['event_file']} ({len(event_df)} rows)  "
               f"baseline={cfg['baseline_file']} ({len(baseline_df)} rows)")
 
+        out_path = os.path.join(OUTPUT_DIR, f"map_{cfg['metric']}.png")
         make_map(
             event_df, baseline_df, cfg["metric"], cfg["label"],
             event_label, baseline_label,
-            out_path=f"map_{cfg['metric']}.png",
+            out_path=out_path,
         )
 
-    print("\nDone. Upload map_rsrp.png, map_rsrq.png, map_sinr.png back to Claude.")
+    print(f"\nDone. Files written to {OUTPUT_DIR}/ -- upload map_rsrp.png, map_rsrq.png, map_sinr.png back to Claude.")
