@@ -1,8 +1,4 @@
 .DS_Store
 .venv
-.claude
-scripts/*
-output/*
 ~
 analyzed/*
-scripts-claude/*
